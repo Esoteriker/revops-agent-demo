@@ -31,20 +31,20 @@ src/revops_agent/store.py    Lightweight JSON-backed data store
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e .
+pip install -r requirements.txt
 export OPENAI_API_KEY=sk-...
 ```
 
 ## Run
 
 ```bash
-python3 -m revops_agent.agent --prompt "Review Acme Corp and draft a follow-up email for the CFO."
+python3 run_demo.py --prompt "Review Acme Corp and draft a follow-up email for the CFO."
 ```
 
 Interactive mode:
 
 ```bash
-python3 -m revops_agent.agent
+python3 run_demo.py
 ```
 
 Example prompts:
@@ -59,6 +59,7 @@ Example prompts:
 - The demo uses local JSON files as stand-ins for CRM and ops systems.
 - Tool approvals are handled through the SDK interruption flow.
 - Conversation state is stored with `SQLiteSession` so the agent can remember previous turns.
+- `pyproject.toml` is included for packaging, but `requirements.txt` plus `run_demo.py` is the simplest local dev path.
 
 ## License
 
