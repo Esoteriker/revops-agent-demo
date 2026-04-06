@@ -9,6 +9,8 @@ It shows four practical patterns:
 - session memory for multi-turn conversations
 - human approval for sensitive actions such as sending email or discount escalation
 
+It also includes an offline ERP-style console so you can demo workflow planning, approvals, and runtime side effects without configuring an API key first.
+
 ## What the demo can do
 
 - inspect leads, accounts, deals, and campaign performance
@@ -47,6 +49,30 @@ Interactive mode:
 ```bash
 python3 run_demo.py
 ```
+
+Offline CLI mode:
+
+```bash
+python3 run_demo.py --offline
+```
+
+## ERP Console
+
+Run the local ERP-style GUI:
+
+```bash
+python3 run_erp_demo.py
+```
+
+Then open [http://127.0.0.1:8123](http://127.0.0.1:8123).
+
+The console includes:
+
+- an operator goal composer
+- account and campaign context
+- an execution plan with step status
+- approval cards for sensitive actions
+- runtime counters for tasks, notes, emails, and discount requests
 
 Example prompts:
 

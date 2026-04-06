@@ -42,6 +42,22 @@ class RuntimeStore:
     def _write_runtime(self, payload: dict[str, Any]) -> None:
         self.runtime_path.write_text(json.dumps(payload, indent=2))
 
+    def seed_data(self) -> dict[str, Any]:
+        return self._read_seed()
+
+    def runtime_data(self) -> dict[str, Any]:
+        return self._read_runtime()
+
+    def reset_runtime(self) -> None:
+        self._write_runtime(
+            {
+                "tasks": [],
+                "emails": [],
+                "notes": [],
+                "discount_requests": [],
+            }
+        )
+
     def find_account(self, account_name: str) -> dict[str, Any] | None:
         name = account_name.casefold()
         for account in self._read_seed()["accounts"]:

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RevOps ERP Console</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <p class="eyebrow">Revenue Command</p>
+          <h1>RevOps ERP</h1>
+          <p class="sidebar-copy">Operator-grade control surface for revenue, approvals, and account execution.</p>
+        </div>
+
+        <nav class="module-nav">
+          <button class="module active">Operations board</button>
+          <button class="module">Accounts</button>
+          <button class="module">Approvals</button>
+          <button class="module">Campaigns</button>
+        </nav>
+
+        <section class="sidebar-section">
+          <div class="section-head">
+            <span>Priority Accounts</span>
+            <span id="qualifiedCount" class="muted-tag">0</span>
+          </div>
+          <div id="accountList" class="account-list"></div>
+        </section>
+
+        <section class="sidebar-section">
+          <div class="section-head">
+            <span>Sample Goals</span>
+          </div>
+          <div id="samplePrompts" class="prompt-list"></div>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Execution Workspace</p>
+            <h2>Operator Console</h2>
+          </div>
+          <div class="topbar-actions">
+            <button id="refreshButton" class="ghost-button">Refresh</button>
+            <button id="resetButton" class="ghost-button warning">Reset Runtime</button>
+          </div>
+        </header>
+
+        <section class="hero-strip">
+          <div class="hero-copy">
+            <p class="hero-label">Mode</p>
+            <h3>Offline agent orchestration with approval checkpoints</h3>
+            <p>This console treats goals as operational work: it builds a plan, executes allowed actions, pauses for approval, and writes side effects into the runtime store.</p>
+          </div>
+          <div id="kpiStrip" class="kpi-strip"></div>
+        </section>
+
+        <section class="command-bay">
+          <label for="goalInput">Goal</label>
+          <div class="composer">
+            <textarea id="goalInput" placeholder="Advance Acme Corp toward close, draft the next email, and prepare a 15 percent discount request."></textarea>
+            <button id="runButton" class="primary-button">Run Workflow</button>
+          </div>
+        </section>
+
+        <section class="main-grid">
+          <div class="surface plan-surface">
+            <div class="surface-head">
+              <div>
+                <p class="eyebrow">Current Run</p>
+                <h3 id="routeLabel">Awaiting goal</h3>
+              </div>
+              <span id="nextAction" class="status-pill neutral">Waiting for input</span>
+            </div>
+            <div id="contextBlock" class="context-block"></div>
+            <div id="planList" class="plan-list empty-state">Run a goal to see the execution plan.</div>
+          </div>
+
+          <div class="surface intelligence-surface">
+            <div class="surface-head">
+              <div>
+                <p class="eyebrow">Pipeline Context</p>
+                <h3>Signals and Drafts</h3>
+              </div>
+            </div>
+            <div id="metricGrid" class="metric-grid"></div>
+            <div id="insightList" class="insight-list"></div>
+            <div id="draftList" class="draft-list"></div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="right-rail">
+        <section class="rail-panel approvals-panel">
+          <div class="section-head">
+            <span>Approvals</span>
+            <span id="approvalCount" class="muted-tag">0</span>
+          </div>
+          <div id="approvalList" class="approval-list empty-state">No approvals waiting.</div>
+        </section>
+
+        <section class="rail-panel">
+          <div class="section-head">
+            <span>Recent Activity</span>
+          </div>
+          <div id="activityList" class="activity-list empty-state">No workflow has run yet.</div>
+        </section>
+
+        <section class="rail-panel">
+          <div class="section-head">
+            <span>Runtime Effects</span>
+          </div>
+          <div id="runtimeSummary" class="runtime-summary"></div>
+        </section>
+      </aside>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+  </html>
