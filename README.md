@@ -32,6 +32,7 @@ src/revops_agent/store.py    Lightweight JSON-backed data store
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env
 export OPENAI_API_KEY=sk-...
 ```
 
