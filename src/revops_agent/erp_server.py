@@ -9,7 +9,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from uuid import uuid4
 
-from .offline_workflow import build_dashboard_snapshot, run_offline_workflow, store
+from .offline_workflow import build_dashboard_snapshot, get_engine, reset_engine, store
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -19,27 +19,42 @@ UI_DIR = ROOT / "ui"
 class DemoState:
     def __init__(self) -> None:
         self.runs: dict[str, dict[str, object]] = {}
+        self.engine = get_engine()
 
     def create_run(self, prompt: str) -> dict[str, object]:
         run_id = str(uuid4())
-        result = run_offline_workflow(prompt)
-        self.runs[run_id] = {"prompt": prompt, "decisions": {}, "result": result}
-        return {"run_id": run_id, "result": result}
+        self.runs[run_id] = {
+            "prompt": prompt,
+            "result": self.engine.start_run(prompt, run_id),
+        }
+        return {"run_id": run_id, "result": self.runs[run_id]["result"]}
 
     def resolve_approval(self, run_id: str, approval_id: str, approved: bool) -> dict[str, object] | None:
         run = self.runs.get(run_id)
         if not run:
             return None
-        decisions = dict(run["decisions"])
-        decisions[approval_id] = approved
-        result = run_offline_workflow(str(run["prompt"]), decisions)
-        run["decisions"] = decisions
+        current = run["result"]
+        current_approvals = {
+            item["id"]
+            for item in current.get("approvals", [])
+        }
+        if approval_id not in current_approvals:
+            return {"run_id": run_id, "result": current}
+        result = self.engine.resume_run(run_id, approved)
         run["result"] = result
         return {"run_id": run_id, "result": result}
 
     def reset(self) -> None:
         self.runs.clear()
         store.reset_runtime()
+        reset_engine()
+        self.engine = get_engine()
+
+    def dashboard(self) -> dict[str, object]:
+        dashboard = build_dashboard_snapshot()
+        pending = sum(len(run["result"].get("approvals", [])) for run in self.runs.values())
+        dashboard["kpis"]["pending_approvals"] = pending
+        return dashboard
 
 
 APP_STATE = DemoState()
@@ -48,13 +63,18 @@ APP_STATE = DemoState()
 class ERPRequestHandler(BaseHTTPRequestHandler):
     server_version = "RevOpsERPDemo/0.1"
 
+    def do_OPTIONS(self) -> None:
+        self.send_response(HTTPStatus.NO_CONTENT)
+        self._set_cors_headers()
+        self.end_headers()
+
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path == "/api/bootstrap":
-            self._json_response({"dashboard": build_dashboard_snapshot()})
+            self._json_response({"dashboard": APP_STATE.dashboard()})
             return
         if parsed.path == "/api/runtime":
-            self._json_response({"dashboard": build_dashboard_snapshot()})
+            self._json_response({"dashboard": APP_STATE.dashboard()})
             return
         self._serve_static(parsed.path)
 
@@ -80,7 +100,7 @@ class ERPRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/reset":
             APP_STATE.reset()
-            self._json_response({"ok": True, "dashboard": build_dashboard_snapshot()})
+            self._json_response({"ok": True, "dashboard": APP_STATE.dashboard()})
             return
         self._json_response({"error": "Not found."}, status=HTTPStatus.NOT_FOUND)
 
@@ -99,6 +119,7 @@ class ERPRequestHandler(BaseHTTPRequestHandler):
     def _json_response(self, payload: dict[str, object], status: HTTPStatus = HTTPStatus.OK) -> None:
         encoded = json.dumps(payload).encode("utf-8")
         self.send_response(status)
+        self._set_cors_headers()
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(encoded)))
         self.end_headers()
@@ -114,10 +135,16 @@ class ERPRequestHandler(BaseHTTPRequestHandler):
         content = file_path.read_bytes()
         mime_type, _ = mimetypes.guess_type(str(file_path))
         self.send_response(HTTPStatus.OK)
+        self._set_cors_headers()
         self.send_header("Content-Type", f"{mime_type or 'application/octet-stream'}; charset=utf-8")
         self.send_header("Content-Length", str(len(content)))
         self.end_headers()
         self.wfile.write(content)
+
+    def _set_cors_headers(self) -> None:
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
 
 def main() -> None:

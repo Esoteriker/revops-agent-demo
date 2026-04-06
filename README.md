@@ -1,6 +1,6 @@
 # RevOps Agent Demo
 
-This project is a small enterprise-style sales and operations automation demo built with the OpenAI Agents SDK.
+This project is a small enterprise-style sales and operations automation demo built with the OpenAI Agents SDK and a LangGraph-backed offline runtime.
 
 It shows four practical patterns:
 
@@ -9,7 +9,7 @@ It shows four practical patterns:
 - session memory for multi-turn conversations
 - human approval for sensitive actions such as sending email or discount escalation
 
-It also includes an offline ERP-style console so you can demo workflow planning, approvals, and runtime side effects without configuring an API key first.
+It also includes a LangGraph-backed offline ERP-style console so you can demo workflow planning, approvals, interrupts, and runtime side effects without configuring an API key first.
 
 ## What the demo can do
 
@@ -73,6 +73,8 @@ The console includes:
 - an execution plan with step status
 - approval cards for sensitive actions
 - runtime counters for tasks, notes, emails, and discount requests
+
+The offline runtime is now orchestrated through LangGraph nodes plus interrupt/resume checkpoints rather than ad hoc control flow.
 
 Example prompts:
 

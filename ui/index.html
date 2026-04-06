@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RevOps ERP Console</title>
+    <title>RevOps ERP Workspace</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -12,19 +12,23 @@
         <div class="brand-block">
           <p class="eyebrow">Revenue Command</p>
           <h1>RevOps ERP</h1>
-          <p class="sidebar-copy">Operator-grade control surface for revenue, approvals, and account execution.</p>
+          <p class="sidebar-copy">Execution workspace for routing goals, approvals, and runtime side effects.</p>
+          <div class="brand-meta">
+            <span class="muted-tag accent">Offline runtime</span>
+            <span class="muted-tag">Human approval on</span>
+          </div>
         </div>
 
-        <nav class="module-nav">
-          <button class="module active">Operations board</button>
-          <button class="module">Accounts</button>
-          <button class="module">Approvals</button>
-          <button class="module">Campaigns</button>
+        <nav class="module-nav" aria-label="Primary modules">
+          <button class="module active" data-target="commandDeck">Operations board</button>
+          <button class="module" data-target="executionBoard">Execution plan</button>
+          <button class="module" data-target="approvalQueue">Approvals</button>
+          <button class="module" data-target="campaignDesk">Campaigns</button>
         </nav>
 
         <section class="sidebar-section">
           <div class="section-head">
-            <span>Priority Accounts</span>
+            <span>Priority accounts</span>
             <span id="qualifiedCount" class="muted-tag">0</span>
           </div>
           <div id="accountList" class="account-list"></div>
@@ -32,7 +36,7 @@
 
         <section class="sidebar-section">
           <div class="section-head">
-            <span>Sample Goals</span>
+            <span>Quick start goals</span>
           </div>
           <div id="samplePrompts" class="prompt-list"></div>
         </section>
@@ -42,33 +46,50 @@
         <header class="topbar">
           <div>
             <p class="eyebrow">Execution Workspace</p>
-            <h2>Operator Console</h2>
+            <h2>Control Center</h2>
+            <p class="topbar-copy">Track live account context, decision gates, and runtime writes from one operator view.</p>
           </div>
-          <div class="topbar-actions">
-            <button id="refreshButton" class="ghost-button">Refresh</button>
-            <button id="resetButton" class="ghost-button warning">Reset Runtime</button>
+
+          <div class="topbar-right">
+            <div class="status-cluster">
+              <span class="muted-tag">Local API</span>
+              <span id="lastSyncLabel" class="muted-tag accent">Syncing...</span>
+            </div>
+            <div class="topbar-actions">
+              <button id="refreshButton" class="ghost-button">Refresh</button>
+              <button id="resetButton" class="ghost-button warning">Reset runtime</button>
+            </div>
           </div>
         </header>
 
-        <section class="hero-strip">
-          <div class="hero-copy">
-            <p class="hero-label">Mode</p>
-            <h3>Offline agent orchestration with approval checkpoints</h3>
-            <p>This console treats goals as operational work: it builds a plan, executes allowed actions, pauses for approval, and writes side effects into the runtime store.</p>
-          </div>
-          <div id="kpiStrip" class="kpi-strip"></div>
-        </section>
+        <section class="overview-grid">
+          <section id="commandDeck" class="surface overview-surface">
+            <div class="surface-head">
+              <div>
+                <p class="eyebrow">Operator Queue</p>
+                <h3>Goal intake and snapshot</h3>
+              </div>
+              <span class="muted-tag">Cmd/Ctrl + Enter</span>
+            </div>
 
-        <section class="command-bay">
-          <label for="goalInput">Goal</label>
-          <div class="composer">
-            <textarea id="goalInput" placeholder="Advance Acme Corp toward close, draft the next email, and prepare a 15 percent discount request."></textarea>
-            <button id="runButton" class="primary-button">Run Workflow</button>
-          </div>
-        </section>
+            <div id="kpiStrip" class="kpi-strip"></div>
 
-        <section class="main-grid">
-          <div class="surface plan-surface">
+            <label class="field-label" for="goalInput">Operator goal</label>
+            <div class="composer">
+              <textarea
+                id="goalInput"
+                placeholder="Advance Acme Corp toward close, draft the next email, and prepare a 15 percent discount request."
+              ></textarea>
+              <div class="composer-footer">
+                <div class="helper-group">
+                  <p>Stage a sales or operations request and let the agent build the working plan.</p>
+                </div>
+                <button id="runButton" class="primary-button">Run workflow</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="surface status-surface">
             <div class="surface-head">
               <div>
                 <p class="eyebrow">Current Run</p>
@@ -76,49 +97,117 @@
               </div>
               <span id="nextAction" class="status-pill neutral">Waiting for input</span>
             </div>
-            <div id="contextBlock" class="context-block"></div>
-            <div id="planList" class="plan-list empty-state">Run a goal to see the execution plan.</div>
-          </div>
 
-          <div class="surface intelligence-surface">
-            <div class="surface-head">
-              <div>
-                <p class="eyebrow">Pipeline Context</p>
-                <h3>Signals and Drafts</h3>
-              </div>
+            <div id="runSummary" class="run-summary"></div>
+
+            <div class="next-step-panel">
+              <p class="eyebrow">Next action</p>
+              <p id="nextActionText" class="next-action-copy">Stage a goal to populate the operator workspace.</p>
             </div>
-            <div id="metricGrid" class="metric-grid"></div>
-            <div id="insightList" class="insight-list"></div>
-            <div id="draftList" class="draft-list"></div>
+          </section>
+        </section>
+
+        <section class="main-grid">
+          <div class="main-stack">
+            <section id="executionBoard" class="surface">
+              <div class="surface-head">
+                <div>
+                  <p class="eyebrow">Execution Board</p>
+                  <h3>Plan and account context</h3>
+                </div>
+                <span id="planHealth" class="muted-tag">No active run</span>
+              </div>
+
+              <div id="contextBlock" class="context-block">
+                <div class="empty-state">No account context for this run yet.</div>
+              </div>
+
+              <div class="section-divider"></div>
+
+              <div class="table-shell">
+                <div class="table-head">
+                  <span>Step</span>
+                  <span>Status</span>
+                  <span>Detail</span>
+                </div>
+                <div id="planList" class="plan-list">
+                  <div class="empty-state">Run a goal to see the execution plan.</div>
+                </div>
+              </div>
+            </section>
+
+            <section id="pipelineDesk" class="surface">
+              <div class="surface-head">
+                <div>
+                  <p class="eyebrow">Pipeline Context</p>
+                  <h3>Signals and drafts</h3>
+                </div>
+                <span id="draftCount" class="muted-tag">0 drafts</span>
+              </div>
+
+              <div class="intelligence-grid">
+                <div class="subsurface">
+                  <p class="section-label">Run metrics</p>
+                  <div id="metricGrid" class="metric-grid">
+                    <div class="empty-state">No metrics for this run yet.</div>
+                  </div>
+                </div>
+
+                <div class="subsurface">
+                  <p class="section-label">Insights</p>
+                  <div id="insightList" class="insight-list">
+                    <div class="empty-state">No insights yet.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section-divider"></div>
+
+              <p class="section-label">Draft outputs</p>
+              <div id="draftList" class="draft-list">
+                <div class="empty-state">No drafts generated for this run.</div>
+              </div>
+            </section>
           </div>
         </section>
       </main>
 
       <aside class="right-rail">
-        <section class="rail-panel approvals-panel">
+        <section id="approvalQueue" class="surface rail-surface">
           <div class="section-head">
-            <span>Approvals</span>
+            <span>Approval queue</span>
             <span id="approvalCount" class="muted-tag">0</span>
           </div>
-          <div id="approvalList" class="approval-list empty-state">No approvals waiting.</div>
-        </section>
-
-        <section class="rail-panel">
-          <div class="section-head">
-            <span>Recent Activity</span>
+          <div id="approvalList" class="approval-list">
+            <div class="empty-state">No approvals waiting.</div>
           </div>
-          <div id="activityList" class="activity-list empty-state">No workflow has run yet.</div>
         </section>
 
-        <section class="rail-panel">
+        <section id="activityRail" class="surface rail-surface">
           <div class="section-head">
-            <span>Runtime Effects</span>
+            <span>Recent activity</span>
+          </div>
+          <div id="activityList" class="activity-list">
+            <div class="empty-state">No workflow has run yet.</div>
+          </div>
+        </section>
+
+        <section id="runtimeDesk" class="surface rail-surface">
+          <div class="section-head">
+            <span>Runtime effects</span>
           </div>
           <div id="runtimeSummary" class="runtime-summary"></div>
+        </section>
+
+        <section id="campaignDesk" class="surface rail-surface">
+          <div class="section-head">
+            <span>Campaign watch</span>
+          </div>
+          <div id="campaignBoard" class="campaign-board"></div>
         </section>
       </aside>
     </div>
 
     <script type="module" src="/app.js"></script>
   </body>
-  </html>
+</html>
