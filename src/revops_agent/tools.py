@@ -2,7 +2,15 @@ from __future__ import annotations
 
 import json
 
-from agents import function_tool
+try:
+    from agents import function_tool
+except ModuleNotFoundError:
+    def function_tool(func=None, **_kwargs):
+        if func is None:
+            def decorator(inner):
+                return inner
+            return decorator
+        return func
 
 from .store import RuntimeStore
 

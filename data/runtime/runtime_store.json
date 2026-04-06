@@ -1,0 +1,25 @@
+{
+  "tasks": [
+    {
+      "task_id": "task_0001",
+      "account_name": "Acme Corp",
+      "owner": "agent",
+      "due_date": "2026-04-13",
+      "task": "Follow up on latest account activity and confirm next meeting.",
+      "created_on": "2026-04-06"
+    }
+  ],
+  "emails": [],
+  "notes": [],
+  "discount_requests": [
+    {
+      "request_id": "disc_0001",
+      "account_name": "Acme Corp",
+      "percent": 15,
+      "reason": "Offline demo request",
+      "submitted_by": "agent",
+      "status": "submitted",
+      "created_on": "2026-04-06"
+    }
+  ]
+}
