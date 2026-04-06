@@ -1,0 +1,102 @@
+{
+  "accounts": [
+    {
+      "account_id": "acct_acme",
+      "name": "Acme Corp",
+      "industry": "Manufacturing",
+      "region": "North America",
+      "employees": 4200,
+      "tier": "enterprise",
+      "health": "warm",
+      "last_touch": "2026-04-02",
+      "notes": [
+        "Interested in consolidating analytics vendors.",
+        "CFO requested a pricing overview before April planning."
+      ]
+    },
+    {
+      "account_id": "acct_nimbus",
+      "name": "Nimbus Labs",
+      "industry": "Biotech",
+      "region": "EMEA",
+      "employees": 650,
+      "tier": "mid-market",
+      "health": "hot",
+      "last_touch": "2026-04-04",
+      "notes": [
+        "Pilot usage expanded from one team to four teams.",
+        "Ops lead asked for onboarding support and security questionnaire."
+      ]
+    }
+  ],
+  "leads": [
+    {
+      "lead_id": "lead_001",
+      "account_name": "Acme Corp",
+      "contact_name": "Dana Chen",
+      "role": "CFO",
+      "source": "webinar",
+      "score": 81,
+      "status": "working",
+      "pain_points": [
+        "fragmented reporting",
+        "slow monthly close"
+      ]
+    },
+    {
+      "lead_id": "lead_002",
+      "account_name": "Nimbus Labs",
+      "contact_name": "Lars Weber",
+      "role": "VP Operations",
+      "source": "partner referral",
+      "score": 92,
+      "status": "qualified",
+      "pain_points": [
+        "manual onboarding",
+        "compliance tracking"
+      ]
+    }
+  ],
+  "deals": [
+    {
+      "deal_id": "deal_1001",
+      "account_name": "Acme Corp",
+      "stage": "proposal",
+      "amount_usd": 145000,
+      "close_date": "2026-04-22",
+      "owner": "Maya",
+      "next_step": "Send pricing recap and ROI note",
+      "discount_requested_pct": 0
+    },
+    {
+      "deal_id": "deal_1002",
+      "account_name": "Nimbus Labs",
+      "stage": "security review",
+      "amount_usd": 68000,
+      "close_date": "2026-04-18",
+      "owner": "Jon",
+      "next_step": "Share security documentation and customer reference",
+      "discount_requested_pct": 0
+    }
+  ],
+  "campaigns": [
+    {
+      "campaign_id": "cmp_q2_webinar",
+      "name": "Q2 Finance Automation Webinar",
+      "channel": "webinar",
+      "spend_usd": 7200,
+      "pipeline_usd": 54000,
+      "mqls": 46,
+      "status": "active"
+    },
+    {
+      "campaign_id": "cmp_partner_push",
+      "name": "Partner Referral Push",
+      "channel": "partners",
+      "spend_usd": 3500,
+      "pipeline_usd": 87000,
+      "mqls": 19,
+      "status": "active"
+    }
+  ]
+}
