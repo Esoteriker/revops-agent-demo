@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import lru_cache
 import json
 from datetime import date
 from pathlib import Path
@@ -13,6 +14,20 @@ OUTPUT_DIR = DATA_DIR / "runtime"
 RUNTIME_DB = OUTPUT_DIR / "runtime_store.json"
 
 
+def _empty_runtime_payload() -> dict[str, list[dict[str, Any]]]:
+    return {
+        "tasks": [],
+        "emails": [],
+        "notes": [],
+        "discount_requests": [],
+    }
+
+
+@lru_cache(maxsize=8)
+def _read_json_file(path: str, mtime_ns: int) -> dict[str, Any]:
+    return json.loads(Path(path).read_text())
+
+
 class RuntimeStore:
     """Tiny JSON-backed store for demo side effects."""
 
@@ -21,26 +36,17 @@ class RuntimeStore:
         self.runtime_path = runtime_path
         self.runtime_path.parent.mkdir(parents=True, exist_ok=True)
         if not self.runtime_path.exists():
-            self.runtime_path.write_text(
-                json.dumps(
-                    {
-                        "tasks": [],
-                        "emails": [],
-                        "notes": [],
-                        "discount_requests": [],
-                    },
-                    indent=2,
-                )
-            )
+            self.runtime_path.write_text(json.dumps(_empty_runtime_payload(), indent=2))
 
     def _read_seed(self) -> dict[str, Any]:
-        return json.loads(self.seed_path.read_text())
+        return _read_json_file(str(self.seed_path), self.seed_path.stat().st_mtime_ns)
 
     def _read_runtime(self) -> dict[str, Any]:
-        return json.loads(self.runtime_path.read_text())
+        return _read_json_file(str(self.runtime_path), self.runtime_path.stat().st_mtime_ns)
 
     def _write_runtime(self, payload: dict[str, Any]) -> None:
         self.runtime_path.write_text(json.dumps(payload, indent=2))
+        _read_json_file.cache_clear()
 
     def seed_data(self) -> dict[str, Any]:
         return self._read_seed()
@@ -49,14 +55,7 @@ class RuntimeStore:
         return self._read_runtime()
 
     def reset_runtime(self) -> None:
-        self._write_runtime(
-            {
-                "tasks": [],
-                "emails": [],
-                "notes": [],
-                "discount_requests": [],
-            }
-        )
+        self._write_runtime(_empty_runtime_payload())
 
     def find_account(self, account_name: str) -> dict[str, Any] | None:
         name = account_name.casefold()
